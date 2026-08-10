@@ -305,7 +305,7 @@
     }, 1500);
 try{
     // Fallback to localhost during local development if the env var isn't set
-const BACKEND_URL = window.env?.BACKEND_URL || 'https://nutriagent-ibm-bharatcares.onrender.com' || 'http://127.0.0.1:8000';
+const BACKEND_URL = window.env?.BACKEND_URL || 'https://nutriagentai-ibm-bharatcares.onrender.com' || 'http://127.0.0.1:8000';
 const response = await fetch(`${BACKEND_URL}/api/analyze`, {
   method: 'POST',
   body: formData
