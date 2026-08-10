@@ -6,8 +6,8 @@ from agent import extract_text_via_ocr_api, build_agent_graph
 
 load_dotenv()
 
-OCR_API_KEY = os.getenv("OCR_SPACE_API_KEY")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+OCR_API_KEY = os.getenv("OCR_KEY")
+GROQ_API_KEY = os.getenv("GROQ_KEY")
 
 app = FastAPI(title="NutriAgent API")
 
