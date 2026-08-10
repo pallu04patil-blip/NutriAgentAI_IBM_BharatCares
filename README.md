@@ -13,3 +13,7 @@ Foods to Avoid: Flags foods and ingredients that could worsen elevated or proble
 API KEYS
 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 (GROQ)
 K83812848788957  (OCR)
+
+DEPLOYMENT LINKS
+VERCEL : https://nutri-agent-ai-ibm-bharat-cares-5nddb2o5v.vercel.app/
+RENDER : https://nutriagentai-ibm-bharatcares.onrender.com
