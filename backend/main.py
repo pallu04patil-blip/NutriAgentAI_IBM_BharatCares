@@ -44,3 +44,12 @@ async def analyze_report(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Add this near the top of your main.py file
+@app.get("/")
+def home():
+    return {
+        "status": "online",
+        "message": "NutriAgent API is running!",
+        "docs_url": "/docs"
+    }
