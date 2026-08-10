@@ -1,4 +1,4 @@
-**# NutriAgentAI_IBM_BharatCares*
+NutriAgent_IBM_BharatCares
 An AI-powered lab analyzer that evaluates blood reports, categorizes biomarker levels (High, Medium, Low), and recommends foods to eat or avoid.
 NutriAgent is an AI assistant that simplifies complex lab results into clear, actionable dietary choices. Upload a blood test report, and NutriAgent instantly categorizes your biomarker levels—flagging what's High, Medium, or Low—and gives you a direct breakdown of which foods you should consume and which you should avoid.
 
