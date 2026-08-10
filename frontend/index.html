@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriAgent — AI Pathology & Nutrition Intelligence</title>
+  
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- html2pdf Library for Client-Side PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --high: #ef4444;
+      --low: #f59e0b;
+      --normal: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 850px;
+    }
+
+    /* Header Styling */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .brand-tagline {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 6px;
+    }
+
+    /* Modern Card Container */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Upload Area */
+    #uploadView { text-align: center; }
+    .upload-box {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 45px 20px;
+      background: rgba(15, 23, 42, 0.4);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .upload-box:hover {
+      border-color: var(--primary);
+      background: rgba(16, 185, 129, 0.03);
+    }
+    .upload-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    input[type="file"] { display: none; }
+    
+    .btn {
+      background: var(--primary);
+      color: #0f172a;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    /* Dynamic Loading Bar */
+    #loader {
+      display: none;
+      margin-top: 25px;
+      text-align: left;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.4s ease;
+    }
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Results Dashboard View */
+    #resultsView { display: none; }
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    .patient-title {
+      font-size: 1.4rem;
+      color: var(--text-main);
+    }
+
+    .biomarker-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .biomarker-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .biomarker-name { font-size: 1.1rem; font-weight: 600; }
+    .biomarker-val { font-weight: 700; margin-right: 10px; }
+    
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-HIGH { background: rgba(239, 68, 68, 0.15); color: var(--high); border: 1px solid var(--high); }
+    .badge-LOW { background: rgba(245, 158, 11, 0.15); color: var(--low); border: 1px solid var(--low); }
+    .badge-NORMAL { background: rgba(16, 185, 129, 0.15); color: var(--normal); border: 1px solid var(--normal); }
+
+    .meaning-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+
+    .food-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 0.85rem;
+    }
+    /* Clean PDF rendering rules */
+#pdfContent .biomarker-card {
+  page-break-inside: avoid;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  margin-bottom: 12px;
+}
+#pdfContent .meaning-text {
+  color: #334155 !important;
+}
+#pdfContent .food-grid {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+    .rec-title { color: var(--normal); font-weight: 600; margin-bottom: 4px; }
+    .avoid-title { color: var(--high); font-weight: 600; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- BRAND HEADER -->
+  <header class="brand-header">
+    <div class="brand-logo">
+      🥗 NutriAgent
+    </div>
+    <p class="brand-tagline">AI-Powered Pathology Analysis & Targeted Nutrition Strategy</p>
+  </header>
+
+  <!-- UPLOAD VIEW -->
+  <main id="uploadView" class="glass-card">
+    <label for="imageInput" class="upload-box">
+      <span class="upload-icon">📄</span>
+      <h3>Upload Medical Blood Report</h3>
+      <p style="color: var(--text-muted); margin-top: 8px; font-size: 0.9rem;">
+        Supports JPG, PNG, WebP, BMP, or TIFF images
+      </p>
+      <input type="file" id="imageInput" accept="image/*" onchange="processImage()" />
+    </label>
+
+    <!-- LOADING BAR -->
+    <div id="loader">
+      <div style="display: flex; justify-content: space-between; font-weight: 500;">
+        <span id="loadingStep">Initializing Engine...</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+      <p class="status-text">NutriAgent is parsing lab values and formatting diet recommendations...</p>
+    </div>
+  </main>
+
+  <!-- RESULTS VIEW -->
+  <main id="resultsView" class="glass-card">
+    <div class="action-bar">
+      <div>
+        <h2 class="patient-title">Patient: <span id="patientNameDisplay" style="color: var(--primary);">Patient</span></h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Biomarker Diagnostics & Personalized Food Action Plan</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-secondary" onclick="exportPDF()">📥 Download PDF</button>
+        <button class="btn" onclick="resetView()">Upload Another</button>
+      </div>
+    </div>
+
+    <!-- PDF Printable Container -->
+    <div id="pdfContent">
+      <div id="biomarkersList"></div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  async function processImage() {
+    const fileInput = document.getElementById('imageInput');
+    if (!fileInput.files[0]) return;
+
+    const loader = document.getElementById('loader');
+    const fill = document.getElementById('progressFill');
+    const percent = document.getElementById('progressPercent');
+    const stepText = document.getElementById('loadingStep');
+
+    loader.style.display = 'block';
+
+    // Step 1: Upload and OCR start
+    fill.style.width = '25%';
+    percent.innerText = '25%';
+    stepText.innerText = 'Step 1/3: Reading Report Image (OCR)...';
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    // Simulate steady progress while waiting for backend
+    const progressTimer = setTimeout(() => {
+      fill.style.width = '65%';
+      percent.innerText = '65%';
+      stepText.innerText = 'Step 2/3: Analyzing Biomarkers with Groq LLM...';
+    }, 1500);
+try{
+    // Fallback to localhost during local development if the env var isn't set
+const BACKEND_URL = window.env?.BACKEND_URL || 'https://nutriagent-ibm-bharatcares.onrender.com' || 'http://127.0.0.1:8000';
+const response = await fetch(`${BACKEND_URL}/api/analyze`, {
+  method: 'POST',
+  body: formData
+});
+      clearTimeout(progressTimer);
+
+      fill.style.width = '90%';
+      percent.innerText = '90%';
+      stepText.innerText = 'Step 3/3: Formatting Recommendations...';
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        fill.style.width = '100%';
+        percent.innerText = '100%';
+        setTimeout(() => renderResults(data), 400);
+      } else {
+        alert('Error: ' + (data.detail || 'Failed to analyze report'));
+        loader.style.display = 'none';
+      }
+    } catch (err) {
+      clearTimeout(progressTimer);
+      alert('Error connecting to backend server: ' + err.message);
+      loader.style.display = 'none';
+    }
+  }
+
+  function renderResults(data) {
+    document.getElementById('patientNameDisplay').innerText = data.patient_name;
+    const listContainer = document.getElementById('biomarkersList');
+    listContainer.innerHTML = '';
+
+    data.biomarkers.forEach(item => {
+      const statusClass = `badge-${item.status.toUpperCase()}`;
+      
+      const card = document.createElement('div');
+      card.className = 'biomarker-card';
+      card.innerHTML = `
+        <div class="biomarker-head">
+          <span class="biomarker-name">${item.parameter_name}</span>
+          <div>
+            <span class="biomarker-val">${item.value}</span>
+            <span class="badge ${statusClass}">${item.status.toUpperCase()}</span>
+          </div>
+        </div>
+        <p class="meaning-text">${item.plain_language_meaning}</p>
+        
+        <div class="food-grid">
+          <div>
+            <div class="rec-title">✔ Recommended Foods:</div>
+            <div>${item.recommended_foods.join(', ')}</div>
+          </div>
+          <div>
+            <div class="avoid-title">✖ Foods to Avoid:</div>
+            <div>${item.foods_to_avoid.join(', ')}</div>
+          </div>
+        </div>
+      `;
+      listContainer.appendChild(card);
+    });
+
+    document.getElementById('uploadView').style.display = 'none';
+    document.getElementById('resultsView').style.display = 'block';
+  }
+
+  function exportPDF() {
+    const element = document.getElementById('pdfContent');
+    const patientName = document.getElementById('patientNameDisplay').innerText || 'Report';
+    
+    const opt = {
+      margin:       0.5,
+      filename:     `NutriAgent_Analysis_${patientName}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  }
+
+  function resetView() {
+    document.getElementById('imageInput').value = '';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('uploadView').style.display = 'block';
+    document.getElementById('resultsView').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
