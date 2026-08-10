@@ -8,3 +8,8 @@ Biomarker Classification: Scans blood test reports and clearly labels key marker
 Foods to Eat: Recommends specific foods rich in the nutrients needed to balance out identified deficiencies.
 
 Foods to Avoid: Flags foods and ingredients that could worsen elevated or problematic health markers.
+
+
+API KEYS
+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 (GROQ)
+K83812848788957  (OCR)
